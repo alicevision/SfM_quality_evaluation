@@ -66,11 +66,18 @@ for directory in os.listdir(input_eval_dir):
 
   ensure_dir(matches_dir)
 
+  intrinsic = ''
+  with open(input_eval_dir + "/" + directory + "/K.txt") as f:
+      for line in f:
+          for x in line.split():
+              intrinsic += x + ';'
+  intrinsic = intrinsic = intrinsic[:-1]
+
   print (". intrinsic setup")
   command = OPENMVG_SFM_BIN + "/openMVG_main_SfMInit_ImageListing"
   command = command + " -i " + input_eval_dir + "/" + directory + "/images/"
   command = command + " -o " + matches_dir
-  command = command + " -k \"2759.48;0;1520.69;0;2764.16;1006.81;0;0;1\""
+  command = command + " -k \"" + intrinsic + "\""
   command = command + " -c 1" # force pinhole camera
   command = command + " -g 1" # shared intrinsic
   proc = subprocess.Popen((str(command)), shell=True)
