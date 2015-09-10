@@ -15,33 +15,42 @@
 # Usage:
 #  $ python EvaluationLauncher.py ./Benchmarking_Camera_Calibration_2008 ./Benchmarking_Camera_Calibration_2008_out
 #
-# 
-
-# Indicate the openMVG binary directory (must be changed)
-OPENMVG_SFM_BIN = "/home/user/Documents/Dev_openMVG/openMVG_Build/software/SfM"
-# windows example: "C:\Users\Dev_openMVG\openMVG_Build\software\SfM\Release"
+#
 
 import commands
 import os
 import subprocess
 import sys
+import argparse
 
 def ensure_dir(f):
     d = os.path.dirname(f)
     if not os.path.exists(d):
         os.makedirs(d)
 
+# Configure arguments parser
+#
+
+parser = argparse.ArgumentParser(description='Run OpenMVG SfM on several datasets to evaluate the precision according to a ground truth.')
+
+# OpenMVG SfM programs
+parser.add_argument('-s', '--software', required=True, help='OpenMVG SfM software folder ( like [...]/build/software/SfM)', metavar='SOFTWARE_PATH')
+# input folder where datasets are stored
+parser.add_argument('-i', '--input', required='True', help='Input datasets folder (he should contains folder where there is in each images/, gt_dense_cameras/ and K.txt)', metavar='DATASETS_PATH')
+# Output folder
+parser.add_argument('-o', '--output', default='reconstructions', help='Output folder (it will contains features, matches and reconstructions for each datasets)', metavar='RECONSTRUCTIONS_PATH')
+# Result file
+parser.add_argument('-r', '--result', default='results.json', help='File to store the results', metavar='RESULT_VAR')
+
+args = parser.parse_args()
+
+OPENMVG_SFM_BIN = args.software
 if not (os.path.exists(OPENMVG_SFM_BIN)):
   print("/!\ Please update the OPENMVG_SFM_BIN to the openMVG_Build/software/SfM/ path.")
   sys.exit(1)
 
-if len(sys.argv) < 3:
-  print ("/!\ Invalid input")
-  print ("Usage %s ./GT_DATASET ./GT_DATASET_out" % sys.argv[0])
-  sys.exit(1)
-
-input_eval_dir = sys.argv[1]
-output_eval_dir = os.path.join(sys.argv[2], "evaluation_output")
+input_eval_dir = args.input
+output_eval_dir = args.output
 
 # Run for each dataset of the input eval dir perform
 #  . intrinsic setup
@@ -54,7 +63,7 @@ for directory in os.listdir(input_eval_dir):
 
   print directory
   matches_dir = os.path.join(output_eval_dir, directory, "matching")
-  
+
   ensure_dir(matches_dir)
 
   print (". intrinsic setup")
@@ -66,7 +75,7 @@ for directory in os.listdir(input_eval_dir):
   command = command + " -g 1" # shared intrinsic
   proc = subprocess.Popen((str(command)), shell=True)
   proc.wait()
-      
+
   print (". compute features")
   command = OPENMVG_SFM_BIN + "/openMVG_main_ComputeFeatures"
   command = command + " -i " + matches_dir + "/sfm_data.json"
@@ -80,18 +89,18 @@ for directory in os.listdir(input_eval_dir):
   command = command + " -o " + matches_dir + " -r .8 -g e"
   proc = subprocess.Popen((str(command)), shell=True)
   proc.wait()
-  
+
   print (". compute camera motion")
   outGlobal_dir = os.path.join(output_eval_dir, directory, "SfM_Global")
   command = OPENMVG_SFM_BIN + "/openMVG_main_GlobalSfM"
   command = command + " -i " + matches_dir + "/sfm_data.json"
   command = command + " -m " + matches_dir
   command = command + " -o " + outGlobal_dir
-  command = command + " -r 2" # L2 rotation averaging 
+  command = command + " -r 2" # L2 rotation averaging
   command = command + " -f 0" # Do not refine intrinsics
   proc = subprocess.Popen((str(command)), shell=True)
   proc.wait()
-  
+
   print (". perform quality evaluation")
   gt_camera_dir = os.path.join(input_eval_dir, directory, "gt_dense_cameras")
   outStatistics_dir = os.path.join(outGlobal_dir, "stats")
@@ -101,6 +110,5 @@ for directory in os.listdir(input_eval_dir):
   command = command + " -o " + outStatistics_dir
   proc = subprocess.Popen((str(command)), shell=True)
   proc.wait()
-    
-sys.exit(1)
 
+sys.exit(1)
