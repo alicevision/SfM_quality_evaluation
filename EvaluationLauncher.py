@@ -93,7 +93,9 @@ for directory in os.listdir(input_eval_dir):
   print (". compute matches")
   command = OPENMVG_SFM_BIN + "/openMVG_main_ComputeMatches"
   command = command + " -i " + matches_dir + "/sfm_data.json"
-  command = command + " -o " + matches_dir + " -r .8 -g e"
+  command = command + " -o " + matches_dir
+  command = command + " -r .8 " # distance ratio for matching
+  command = command + " -g e "  # use essential matrix
   proc = subprocess.Popen((str(command)), shell=True)
   proc.wait()
 
