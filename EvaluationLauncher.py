@@ -61,14 +61,14 @@ output_eval_dir = args.output
 #  . compute camera motion
 #  . perform quality evaluation regarding ground truth camera trajectory
 
+result_folder = {}
+
 for directory in os.listdir(input_eval_dir):
 
   print directory
   matches_dir = os.path.join(output_eval_dir, directory, "matching")
 
   ensure_dir(matches_dir)
-
-  result_folder = {}
   time_folder = {}
 
   intrinsic = ''
