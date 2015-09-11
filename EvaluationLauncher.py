@@ -22,6 +22,7 @@ import os
 import subprocess
 import sys
 import argparse
+import json
 
 def ensure_dir(f):
     d = os.path.dirname(f)
@@ -65,6 +66,8 @@ for directory in os.listdir(input_eval_dir):
   matches_dir = os.path.join(output_eval_dir, directory, "matching")
 
   ensure_dir(matches_dir)
+
+  result_folder = {}
 
   intrinsic = ''
   with open(input_eval_dir + "/" + directory + "/K.txt") as f:
@@ -117,7 +120,34 @@ for directory in os.listdir(input_eval_dir):
   command = command + " -i " + gt_camera_dir
   command = command + " -c " + outGlobal_dir + "/sfm_data.json"
   command = command + " -o " + outStatistics_dir
-  proc = subprocess.Popen((str(command)), shell=True)
+  proc = subprocess.Popen((str(command)), shell=True, stdout=subprocess.PIPE)
   proc.wait()
+
+  result = {}
+  line = proc.stdout.readline()
+  while line != '':
+    if 'Baseline error statistics :' in line:
+      basestats = {}
+      line = proc.stdout.readline()
+      line = proc.stdout.readline()
+      for loop in range(0,4):
+        basestats[line.rstrip().split(':')[0].split(' ')[1]] = float(line.rstrip().split(':')[1])
+        line = proc.stdout.readline()
+      result['Baseline error statistics'] = basestats
+    if 'Angular error statistics :' in line:
+      basestats = {}
+      line = proc.stdout.readline()
+      line = proc.stdout.readline()
+      for loop in range(0,4):
+        basestats[line.rstrip().split(':')[0].split(' ')[1]] = float(line.rstrip().split(':')[1])
+        line = proc.stdout.readline()
+      result['Angular error statistics'] = basestats
+    line = proc.stdout.readline()
+
+  result_folder[directory] = result
+
+with open(args.result, 'w') as savejson:
+    json.dump(result_folder, savejson, sort_keys=True, indent=4, separators=(',',':'))
+
 
 sys.exit(1)
