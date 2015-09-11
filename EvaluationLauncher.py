@@ -23,6 +23,7 @@ import subprocess
 import sys
 import argparse
 import json
+import time
 
 def ensure_dir(f):
     d = os.path.dirname(f)
@@ -68,6 +69,7 @@ for directory in os.listdir(input_eval_dir):
   ensure_dir(matches_dir)
 
   result_folder = {}
+  time_folder = {}
 
   intrinsic = ''
   with open(input_eval_dir + "/" + directory + "/K.txt") as f:
@@ -83,15 +85,19 @@ for directory in os.listdir(input_eval_dir):
   command = command + " -k \"" + intrinsic + "\""
   command = command + " -c 1" # force pinhole camera
   command = command + " -g 1" # shared intrinsic
+  start_time = time.time()
   proc = subprocess.Popen((str(command)), shell=True)
   proc.wait()
+  time_folder['image_listing'] = time.time() - start_time
 
   print (". compute features")
   command = OPENMVG_SFM_BIN + "/openMVG_main_ComputeFeatures"
   command = command + " -i " + matches_dir + "/sfm_data.json"
   command = command + " -o " + matches_dir
+  start_time = time.time()
   proc = subprocess.Popen((str(command)), shell=True)
   proc.wait()
+  time_folder['compute_features'] = time.time() - start_time
 
   print (". compute matches")
   command = OPENMVG_SFM_BIN + "/openMVG_main_ComputeMatches"
@@ -99,8 +105,10 @@ for directory in os.listdir(input_eval_dir):
   command = command + " -o " + matches_dir
   command = command + " -r .8 " # distance ratio for matching
   command = command + " -g e "  # use essential matrix
+  start_time = time.time()
   proc = subprocess.Popen((str(command)), shell=True)
   proc.wait()
+  time_folder['compute_matches'] = time.time() - start_time
 
   print (". compute camera motion")
   outGlobal_dir = os.path.join(output_eval_dir, directory, "SfM_Global")
@@ -110,8 +118,10 @@ for directory in os.listdir(input_eval_dir):
   command = command + " -o " + outGlobal_dir
   command = command + " -r 2" # L2 rotation averaging
   command = command + " -f 0" # Do not refine intrinsics
+  start_time = time.time()
   proc = subprocess.Popen((str(command)), shell=True)
   proc.wait()
+  time_folder['compute_camera'] = time.time() - start_time
 
   print (". perform quality evaluation")
   gt_camera_dir = os.path.join(input_eval_dir, directory, "gt_dense_cameras")
@@ -120,8 +130,10 @@ for directory in os.listdir(input_eval_dir):
   command = command + " -i " + gt_camera_dir
   command = command + " -c " + outGlobal_dir + "/sfm_data.json"
   command = command + " -o " + outStatistics_dir
+  start_time = time.time()
   proc = subprocess.Popen((str(command)), shell=True, stdout=subprocess.PIPE)
   proc.wait()
+  time_folder['quality_evaluation'] = time.time() - start_time
 
   result = {}
   line = proc.stdout.readline()
@@ -144,6 +156,7 @@ for directory in os.listdir(input_eval_dir):
       result['Angular error statistics'] = basestats
     line = proc.stdout.readline()
 
+  result['time'] = time_folder
   result_folder[directory] = result
 
 with open(args.result, 'w') as savejson:
