@@ -49,6 +49,7 @@ args = parser.parse_args()
 OPENMVG_SFM_BIN = args.software
 if not (os.path.exists(OPENMVG_SFM_BIN)):
   print("/!\ Please update the OPENMVG_SFM_BIN to the openMVG_Build/software/SfM/ path.")
+  print("Invalid path : " + OPENMVG_SFM_BIN)
   sys.exit(1)
 
 input_eval_dir = args.input
