@@ -8,7 +8,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 #
-# this script is to evaluate the Global SfM pipeline to a known camera trajectory
+# this script is to evaluate the Incremental SfM pipeline to a known camera trajectory
 # Notes:
 #  - OpenMVG 0.8 is required
 #
@@ -105,19 +105,18 @@ for directory in os.listdir(input_eval_dir):
   command = command + " -i " + matches_dir + "/sfm_data.json"
   command = command + " -o " + matches_dir
   command = command + " -r .8 " # distance ratio for matching
-  command = command + " -g e "  # use essential matrix
+  command = command + " -g f "  # use essential matrix
   start_time = time.time()
   proc = subprocess.Popen((str(command)), shell=True)
   proc.wait()
   time_folder['compute_matches'] = time.time() - start_time
 
   print (". compute camera motion")
-  outGlobal_dir = os.path.join(output_eval_dir, directory, "SfM_Global")
-  command = OPENMVG_SFM_BIN + "/openMVG_main_GlobalSfM"
+  outIncremental_dir = os.path.join(output_eval_dir, directory, "SfM_Incremental")
+  command = OPENMVG_SFM_BIN + "/openMVG_main_IncrementalSfM"
   command = command + " -i " + matches_dir + "/sfm_data.json"
   command = command + " -m " + matches_dir
-  command = command + " -o " + outGlobal_dir
-  command = command + " -r 2" # L2 rotation averaging
+  command = command + " -o " + outIncremental_dir
   command = command + " -f 0" # Do not refine intrinsics
   start_time = time.time()
   proc = subprocess.Popen((str(command)), shell=True)
@@ -126,10 +125,10 @@ for directory in os.listdir(input_eval_dir):
 
   print (". perform quality evaluation")
   gt_camera_dir = os.path.join(input_eval_dir, directory, "gt_dense_cameras")
-  outStatistics_dir = os.path.join(outGlobal_dir, "stats")
+  outStatistics_dir = os.path.join(outIncremental_dir, "stats")
   command = OPENMVG_SFM_BIN + "/openMVG_main_evalQuality"
   command = command + " -i " + gt_camera_dir
-  command = command + " -c " + outGlobal_dir + "/sfm_data.json"
+  command = command + " -c " + outIncremental_dir + "/sfm_data.json"
   command = command + " -o " + outStatistics_dir
   start_time = time.time()
   proc = subprocess.Popen((str(command)), shell=True, stdout=subprocess.PIPE)
