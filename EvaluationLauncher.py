@@ -163,4 +163,4 @@ with open(args.result, 'w') as savejson:
     json.dump(result_folder, savejson, sort_keys=True, indent=4, separators=(',',':'))
 
 
-sys.exit(1)
+sys.exit(0)
