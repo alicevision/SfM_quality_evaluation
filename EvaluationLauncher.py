@@ -62,7 +62,7 @@ for directory in os.listdir(input_eval_dir):
   command = command + " -i " + input_eval_dir + "/" + directory + "/images/"
   command = command + " -o " + matches_dir
   command = command + " -k \"2759.48;0;1520.69;0;2764.16;1006.81;0;0;1\""
-  command = command + " -c 1" # force pinhole camera
+  command = command + " -c pinhole" # force pinhole camera
   command = command + " -g 1" # shared intrinsic
   proc = subprocess.Popen((str(command)), shell=True)
   proc.wait()
