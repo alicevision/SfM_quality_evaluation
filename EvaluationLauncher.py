@@ -83,6 +83,7 @@ for directory in os.listdir(input_eval_dir):
   command = OPENMVG_SFM_BIN + "/openMVG_main_SfMInit_ImageListing"
   command = command + " -i " + input_eval_dir + "/" + directory + "/images/"
   command = command + " -o " + matches_dir
+  command = command + " -f " + intrinsic.split(';')[0]
   command = command + " -k \"" + intrinsic + "\""
   command = command + " -c 1" # force pinhole camera
   command = command + " -g 1" # shared intrinsic
