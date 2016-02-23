@@ -85,7 +85,7 @@ for directory in os.listdir(input_eval_dir):
   command = command + " -o " + matches_dir
   command = command + " -f " + intrinsic.split(';')[0]
   command = command + " -k \"" + intrinsic + "\""
-  command = command + " -c 1" # force pinhole camera
+  command = command + " -c pinhole" # force pinhole camera
   command = command + " -g 1" # shared intrinsic
   start_time = time.time()
   proc = subprocess.Popen((str(command)), shell=True)
