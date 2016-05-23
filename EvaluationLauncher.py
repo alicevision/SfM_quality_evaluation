@@ -83,9 +83,10 @@ for directory in os.listdir(input_eval_dir):
   command = OPENMVG_SFM_BIN + "/openMVG_main_SfMInit_ImageListing"
   command = command + " -i " + input_eval_dir + "/" + directory + "/images/"
   command = command + " -o " + matches_dir
-  command = command + " -f " + intrinsic.split(';')[0]
+  command = command + " -k " + "\"" + intrinsic + "\""
   command = command + " -c pinhole" # force pinhole camera
   command = command + " -g 1" # shared intrinsic
+  command = command + " -u 1" # unique id
   start_time = time.time()
   proc = subprocess.Popen((str(command)), shell=True)
   proc.wait()
@@ -124,10 +125,10 @@ for directory in os.listdir(input_eval_dir):
   time_folder['compute_camera'] = time.time() - start_time
 
   print (". perform quality evaluation")
-  gt_camera_dir = os.path.join(input_eval_dir, directory, "gt_dense_cameras")
+  gt_camera_file = os.path.join(input_eval_dir, directory, "gt.abc")
   outStatistics_dir = os.path.join(outIncremental_dir, "stats")
   command = OPENMVG_SFM_BIN + "/openMVG_main_evalQuality"
-  command = command + " -i " + gt_camera_dir
+  command = command + " -i " + gt_camera_file
   command = command + " -c " + outIncremental_dir + "/sfm_data.json"
   command = command + " -o " + outStatistics_dir
   start_time = time.time()
