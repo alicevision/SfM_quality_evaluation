@@ -137,25 +137,36 @@ for directory in os.listdir(input_eval_dir):
   time_folder['quality_evaluation'] = time.time() - start_time
 
   result = {}
+  evalog = open(outStatistics_dir + "/evaluation.log", "w")
   line = proc.stdout.readline()
+  evalog.write(line)
   while line != '':
     if 'Baseline error statistics :' in line:
       basestats = {}
       line = proc.stdout.readline()
+      evalog.write(line)
       line = proc.stdout.readline()
+      evalog.write(line)
       for loop in range(0,4):
         basestats[line.rstrip().split(':')[0].split(' ')[1]] = float(line.rstrip().split(':')[1])
         line = proc.stdout.readline()
+        evalog.write(line)
       result['Baseline error statistics'] = basestats
     if 'Angular error statistics :' in line:
       basestats = {}
       line = proc.stdout.readline()
+      evalog.write(line)
       line = proc.stdout.readline()
+      evalog.write(line)
       for loop in range(0,4):
         basestats[line.rstrip().split(':')[0].split(' ')[1]] = float(line.rstrip().split(':')[1])
         line = proc.stdout.readline()
+        evalog.write(line)
       result['Angular error statistics'] = basestats
     line = proc.stdout.readline()
+    evalog.write(line)
+
+  evalog.close()
 
   result['time'] = time_folder
   result_folder[directory] = result
