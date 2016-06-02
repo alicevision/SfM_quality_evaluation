@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #! -*- encoding: utf-8 -*-
 
-# Copyright (c) 2014, 2015 Pierre MOULON.
+# Copyright (c) 2015 Pierre MOULON.
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -10,10 +10,12 @@
 #
 # this script is to evaluate the Incremental SfM pipeline to a known camera trajectory
 # Notes:
-#  - OpenMVG 0.8 is required
+#  - OpenMVG 0.9 is required
 #
 # Usage:
-#  $ python EvaluationLauncher.py ./Benchmarking_Camera_Calibration_2008 ./Benchmarking_Camera_Calibration_2008_out
+#  $ python EvaluationLauncher.py OPENMVG_BIN_DIR ./Benchmarking_Camera_Calibration_2008 ./Benchmarking_Camera_Calibration_2008_out
+#  i.e:
+#  $ python EvaluationLauncher.py /home/user/openMVG_Build/Linux-x86_64-RELEASE ./Benchmarking_Camera_Calibration_2008 ./Benchmarking_Camera_Calibration_2008_out
 #
 #
 
@@ -162,6 +164,5 @@ for directory in os.listdir(input_eval_dir):
 
 with open(args.result, 'w') as savejson:
     json.dump(result_folder, savejson, sort_keys=True, indent=4, separators=(',',':'))
-
 
 sys.exit(0)
