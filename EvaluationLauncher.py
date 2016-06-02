@@ -86,6 +86,7 @@ for directory in os.listdir(input_eval_dir):
   command = command + " -f " + intrinsic.split(';')[0]
   command = command + " -c pinhole" # force pinhole camera
   command = command + " -g 1" # shared intrinsic
+  command = command + " -u 1" # UID activated
   start_time = time.time()
   proc = subprocess.Popen((str(command)), shell=True)
   proc.wait()
