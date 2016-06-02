@@ -44,7 +44,7 @@ parser.add_argument('-i', '--input', required='True', help='Input datasets folde
 # Output folder
 parser.add_argument('-o', '--output', default='reconstructions', help='Output folder (it will contains features, matches and reconstructions for each datasets)', metavar='RECONSTRUCTIONS_PATH')
 # Result file
-parser.add_argument('-r', '--result', default='results.json', help='File to store the results', metavar='RESULT_VAR')
+parser.add_argument('-r', '--result', default='results.json', help='File to store the results', metavar='RESULT_FILE.json')
 
 args = parser.parse_args()
 
