@@ -91,7 +91,10 @@ for directory in os.listdir(input_eval_dir):
   command = command + " -u 1" # UID activated
   start_time = time.time()
   proc = subprocess.Popen((str(command)), shell=True)
-  proc.wait()
+  if proc.wait() != 0:
+    print ("Error! The following command exited with non-zero exit status (" + str(proc.returncode) + "):")
+    print command
+    sys.exit(proc.returncode)
   time_folder['image_listing'] = time.time() - start_time
 
   print (". compute features")
@@ -100,7 +103,10 @@ for directory in os.listdir(input_eval_dir):
   command = command + " -o " + matches_dir
   start_time = time.time()
   proc = subprocess.Popen((str(command)), shell=True)
-  proc.wait()
+  if proc.wait() != 0:
+    print ("Error! The following command exited with non-zero exit status (" + str(proc.returncode) + "):")
+    print command
+    sys.exit(proc.returncode)
   time_folder['compute_features'] = time.time() - start_time
 
   print (". compute matches")
@@ -111,7 +117,10 @@ for directory in os.listdir(input_eval_dir):
   command = command + " -g f "  # use essential matrix
   start_time = time.time()
   proc = subprocess.Popen((str(command)), shell=True)
-  proc.wait()
+  if proc.wait() != 0:
+    print ("Error! The following command exited with non-zero exit status (" + str(proc.returncode) + "):")
+    print command
+    sys.exit(proc.returncode)
   time_folder['compute_matches'] = time.time() - start_time
 
   print (". compute camera motion")
@@ -123,7 +132,10 @@ for directory in os.listdir(input_eval_dir):
   command = command + " -f 0" # Do not refine intrinsics
   start_time = time.time()
   proc = subprocess.Popen((str(command)), shell=True)
-  proc.wait()
+  if proc.wait() != 0:
+    print ("Error! The following command exited with non-zero exit status (" + str(proc.returncode) + "):")
+    print command
+    sys.exit(proc.returncode)
   time_folder['compute_camera'] = time.time() - start_time
 
   print (". perform quality evaluation")
@@ -135,7 +147,11 @@ for directory in os.listdir(input_eval_dir):
   command = command + " -o " + outStatistics_dir
   start_time = time.time()
   proc = subprocess.Popen((str(command)), shell=True, stdout=subprocess.PIPE)
-  proc.wait()
+  if proc.wait() != 0:
+    print ("Error! The following command exited with non-zero exit status (" + str(proc.returncode) + "):")
+    print command
+    sys.exit(proc.returncode)
+
   time_folder['quality_evaluation'] = time.time() - start_time
 
   result = {}
