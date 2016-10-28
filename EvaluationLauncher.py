@@ -139,7 +139,8 @@ for directory in os.listdir(input_eval_dir):
   time_folder['compute_camera'] = time.time() - start_time
 
   print (". perform quality evaluation")
-  gt_camera_file = os.path.join(input_eval_dir, directory, "gt.abc")
+  # gt_camera_file = os.path.join(input_eval_dir, directory, "gt.abc")
+  gt_camera_file = os.path.join(input_eval_dir, directory)
   outStatistics_dir = os.path.join(outIncremental_dir, "stats")
   command = OPENMVG_SFM_BIN + "/openMVG_main_evalQuality"
   command = command + " -i " + gt_camera_file
