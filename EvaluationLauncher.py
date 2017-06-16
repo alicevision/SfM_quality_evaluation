@@ -40,6 +40,7 @@ parser.add_argument('-s', '--software', required=True, help='OpenMVG SfM softwar
 parser.add_argument('-i', '--input', required='True', help='Input datasets folder (he should contains folder where there is in each images/, gt_dense_cameras/ and K.txt)', metavar='DATASETS_PATH')
 parser.add_argument('-o', '--output', default='reconstructions', help='Output folder (it will contains features, matches and reconstructions for each datasets)', metavar='RECONSTRUCTIONS_PATH')
 parser.add_argument('-r', '--result', default='results.json', help='File to store the results', metavar='RESULT_FILE.json')
+parser.add_argument('-l', '--limit', default=-1, type=int, help='Limit the number of reconstructions to perform')
 parser.add_argument('-v', '--verbose', help='Verbose output', action='store_true')
 
 args = parser.parse_args()
@@ -64,7 +65,7 @@ output_eval_dir = args.output
 
 result_folder = {}
 
-for directory in os.listdir(input_eval_dir):
+for directory in os.listdir(input_eval_dir)[:args.limit]:
 
   print directory
   matches_dir = os.path.join(output_eval_dir, directory, "matching")
