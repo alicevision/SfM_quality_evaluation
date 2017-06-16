@@ -36,17 +36,15 @@ def ensure_dir(f):
 #
 
 parser = argparse.ArgumentParser(description='Run OpenMVG SfM on several datasets to evaluate the precision according to a ground truth.')
-
-# OpenMVG SfM programs
 parser.add_argument('-s', '--software', required=True, help='OpenMVG SfM software folder ( like [...]/build/software/SfM)', metavar='SOFTWARE_PATH')
-# input folder where datasets are stored
 parser.add_argument('-i', '--input', required='True', help='Input datasets folder (he should contains folder where there is in each images/, gt_dense_cameras/ and K.txt)', metavar='DATASETS_PATH')
-# Output folder
 parser.add_argument('-o', '--output', default='reconstructions', help='Output folder (it will contains features, matches and reconstructions for each datasets)', metavar='RECONSTRUCTIONS_PATH')
-# Result file
 parser.add_argument('-r', '--result', default='results.json', help='File to store the results', metavar='RESULT_FILE.json')
+parser.add_argument('-v', '--verbose', help='Verbose output', action='store_true')
 
 args = parser.parse_args()
+
+logHandler = sys.stdout if args.verbose else open(os.devnull, 'w')
 
 OPENMVG_SFM_BIN = args.software
 if not (os.path.exists(OPENMVG_SFM_BIN)):
@@ -90,7 +88,7 @@ for directory in os.listdir(input_eval_dir):
   command = command + " -g 1" # shared intrinsic
   command = command + " -u 1" # UID activated
   start_time = time.time()
-  proc = subprocess.Popen((str(command)), shell=True)
+  proc = subprocess.Popen((str(command)), shell=True, stdout=logHandler, stderr=logHandler)
   if proc.wait() != 0:
     print ("Error! The following command exited with non-zero exit status (" + str(proc.returncode) + "):")
     print command
@@ -102,7 +100,7 @@ for directory in os.listdir(input_eval_dir):
   command = command + " -i " + matches_dir + "/sfm_data.json"
   command = command + " -o " + matches_dir
   start_time = time.time()
-  proc = subprocess.Popen((str(command)), shell=True)
+  proc = subprocess.Popen((str(command)), shell=True, stdout=logHandler, stderr=logHandler)
   if proc.wait() != 0:
     print ("Error! The following command exited with non-zero exit status (" + str(proc.returncode) + "):")
     print command
@@ -116,7 +114,7 @@ for directory in os.listdir(input_eval_dir):
   command = command + " -r .8 " # distance ratio for matching
   command = command + " -g f "  # use essential matrix
   start_time = time.time()
-  proc = subprocess.Popen((str(command)), shell=True)
+  proc = subprocess.Popen((str(command)), shell=True, stdout=logHandler, stderr=logHandler)
   if proc.wait() != 0:
     print ("Error! The following command exited with non-zero exit status (" + str(proc.returncode) + "):")
     print command
@@ -131,7 +129,7 @@ for directory in os.listdir(input_eval_dir):
   command = command + " -o " + outIncremental_dir
   command = command + " -f 0" # Do not refine intrinsics
   start_time = time.time()
-  proc = subprocess.Popen((str(command)), shell=True)
+  proc = subprocess.Popen((str(command)), shell=True, stdout=logHandler, stderr=logHandler)
   if proc.wait() != 0:
     print ("Error! The following command exited with non-zero exit status (" + str(proc.returncode) + "):")
     print command
@@ -147,7 +145,7 @@ for directory in os.listdir(input_eval_dir):
   command = command + " -c " + outIncremental_dir + "/sfm_data.json"
   command = command + " -o " + outStatistics_dir
   start_time = time.time()
-  proc = subprocess.Popen((str(command)), shell=True, stdout=subprocess.PIPE)
+  proc = subprocess.Popen((str(command)), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
   if proc.wait() != 0:
     print ("Error! The following command exited with non-zero exit status (" + str(proc.returncode) + "):")
     print command
