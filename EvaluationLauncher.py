@@ -1,24 +1,6 @@
 #!/usr/bin/python
 #! -*- encoding: utf-8 -*-
 
-# Copyright (c) 2015 Pierre MOULON.
-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-#
-#
-# this script is to evaluate the Incremental SfM pipeline to a known camera trajectory
-# Notes:
-#  - OpenMVG 0.9 is required
-#
-# Usage:
-#  $ python EvaluationLauncher.py OPENMVG_BIN_DIR ./Benchmarking_Camera_Calibration_2008 ./Benchmarking_Camera_Calibration_2008_out
-#  i.e:
-#  $ python EvaluationLauncher.py /home/user/openMVG_Build/Linux-x86_64-RELEASE ./Benchmarking_Camera_Calibration_2008 ./Benchmarking_Camera_Calibration_2008_out
-#
-#
-
 import commands
 import os
 import subprocess
@@ -33,10 +15,9 @@ def ensure_dir(f):
         os.makedirs(d)
 
 # Configure arguments parser
-#
 
-parser = argparse.ArgumentParser(description='Run OpenMVG SfM on several datasets to evaluate the precision according to a ground truth.')
-parser.add_argument('-s', '--software', required=True, help='OpenMVG SfM software folder ( like [...]/build/software/SfM)', metavar='SOFTWARE_PATH')
+parser = argparse.ArgumentParser(description='Run AliceVision SfM on several datasets to evaluate the precision according to a ground truth.')
+parser.add_argument('-s', '--software', required=True, help='AliceVision SfM software folder ( like [...]/build/software/SfM)', metavar='SOFTWARE_PATH')
 parser.add_argument('-i', '--input', required='True', help='Input datasets folder (he should contains folder where there is in each images/, gt_dense_cameras/ and K.txt)', metavar='DATASETS_PATH')
 parser.add_argument('-o', '--output', default='reconstructions', help='Output folder (it will contains features, matches and reconstructions for each datasets)', metavar='RECONSTRUCTIONS_PATH')
 parser.add_argument('-r', '--result', default='results.json', help='File to store the results', metavar='RESULT_FILE.json')
@@ -47,10 +28,10 @@ args = parser.parse_args()
 
 logHandler = sys.stdout if args.verbose else open(os.devnull, 'w')
 
-OPENMVG_SFM_BIN = args.software
-if not (os.path.exists(OPENMVG_SFM_BIN)):
-  print("/!\ Please update the OPENMVG_SFM_BIN to the openMVG_Build/software/SfM/ path.")
-  print("Invalid path : " + OPENMVG_SFM_BIN)
+ALICEVISION_SFM_BIN = args.software
+if not (os.path.exists(ALICEVISION_SFM_BIN)):
+  print("/!\ Please update the ALICEVISION_SFM_BIN to the aliceVision_Build/software/SfM/ path.")
+  print("Invalid path : " + ALICEVISION_SFM_BIN)
   sys.exit(1)
 
 input_eval_dir = args.input
@@ -81,13 +62,12 @@ for directory in os.listdir(input_eval_dir)[:args.limit]:
   intrinsic = intrinsic = intrinsic[:-1]
 
   print (". intrinsic setup")
-  command = OPENMVG_SFM_BIN + "/openMVG_main_SfMInit_ImageListing"
+  command = ALICEVISION_SFM_BIN + "/aliceVision_cameraInit"
   command = command + " -i " + input_eval_dir + "/" + directory + "/images/"
   command = command + " -o " + matches_dir
-  command = command + " -k " + "\"" + intrinsic + "\""
-  command = command + " -c pinhole" # force pinhole camera
-  command = command + " -g 1" # shared intrinsic
-  command = command + " -u 1" # UID activated
+  command = command + " --defaultIntrinsics " + "\"" + intrinsic + "\""
+  command = command + " --defaultCameraModel pinhole" # force pinhole camera
+  command = command + " --sensorDatabase ''"
   start_time = time.time()
   proc = subprocess.Popen((str(command)), shell=True, stdout=logHandler, stderr=logHandler)
   if proc.wait() != 0:
@@ -97,7 +77,7 @@ for directory in os.listdir(input_eval_dir)[:args.limit]:
   time_folder['image_listing'] = time.time() - start_time
 
   print (". compute features")
-  command = OPENMVG_SFM_BIN + "/openMVG_main_ComputeFeatures"
+  command = ALICEVISION_SFM_BIN + "/aliceVision_featureExtraction"
   command = command + " -i " + matches_dir + "/sfm_data.json"
   command = command + " -o " + matches_dir
   start_time = time.time()
@@ -109,11 +89,9 @@ for directory in os.listdir(input_eval_dir)[:args.limit]:
   time_folder['compute_features'] = time.time() - start_time
 
   print (". compute matches")
-  command = OPENMVG_SFM_BIN + "/openMVG_main_ComputeMatches"
+  command = ALICEVISION_SFM_BIN + "/aliceVision_featureMatching"
   command = command + " -i " + matches_dir + "/sfm_data.json"
   command = command + " -o " + matches_dir
-  command = command + " -r .8 " # distance ratio for matching
-  command = command + " -g f "  # use essential matrix
   start_time = time.time()
   proc = subprocess.Popen((str(command)), shell=True, stdout=logHandler, stderr=logHandler)
   if proc.wait() != 0:
@@ -123,12 +101,13 @@ for directory in os.listdir(input_eval_dir)[:args.limit]:
   time_folder['compute_matches'] = time.time() - start_time
 
   print (". compute camera motion")
-  outIncremental_dir = os.path.join(output_eval_dir, directory, "SfM_Incremental")
-  command = OPENMVG_SFM_BIN + "/openMVG_main_IncrementalSfM"
+  outSfM = os.path.join(output_eval_dir, directory, "sfm.json")
+  command = ALICEVISION_SFM_BIN + "/aliceVision_incrementalSfM"
   command = command + " -i " + matches_dir + "/sfm_data.json"
+  command = command + " -f " + matches_dir
   command = command + " -m " + matches_dir
-  command = command + " -o " + outIncremental_dir
-  command = command + " -f 0" # Do not refine intrinsics
+  command = command + " -o " + outSfM
+  command = command + " --refineIntrinsics 0"  # Do not refine intrinsics
   start_time = time.time()
   proc = subprocess.Popen((str(command)), shell=True, stdout=logHandler, stderr=logHandler)
   if proc.wait() != 0:
@@ -140,10 +119,10 @@ for directory in os.listdir(input_eval_dir)[:args.limit]:
   print (". perform quality evaluation")
   # gt_camera_file = os.path.join(input_eval_dir, directory, "gt.abc")
   gt_camera_file = os.path.join(input_eval_dir, directory)
-  outStatistics_dir = os.path.join(outIncremental_dir, "stats")
-  command = OPENMVG_SFM_BIN + "/openMVG_main_evalQuality"
-  command = command + " -i " + gt_camera_file
-  command = command + " -c " + outIncremental_dir + "/sfm_data.json"
+  outStatistics_dir = os.path.join(output_eval_dir, directory, "stats")
+  command = ALICEVISION_SFM_BIN + "/aliceVision_utils_qualityEvaluation"
+  command = command + " --groundTruthPath " + gt_camera_file
+  command = command + " -i " + outSfM
   command = command + " -o " + outStatistics_dir
   start_time = time.time()
   proc = subprocess.Popen((str(command)), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)

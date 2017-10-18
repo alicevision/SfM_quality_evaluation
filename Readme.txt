@@ -3,8 +3,7 @@
 SfM Camera trajectory quality evaluation
 =========================================
 
-Those datasets can be used to evaluate the SfM camera trajectory quality found by
-openMVG.
+Those datasets can be used to evaluate the SfM camera trajectory quality found by AliceVision.
 
 -----------------------------
 Usage
