@@ -63,9 +63,9 @@ for directory in os.listdir(input_eval_dir)[:args.limit]:
 
   print (". intrinsic setup")
   command = ALICEVISION_SFM_BIN + "/aliceVision_cameraInit"
-  command = command + " -i " + input_eval_dir + "/" + directory + "/images/"
-  command = command + " -o " + matches_dir
-  command = command + " --defaultIntrinsics " + "\"" + intrinsic + "\""
+  command = command + " --imageFolder " + input_eval_dir + "/" + directory + "/images/"
+  command = command + " -o " + matches_dir + "/" + "cameraInit.sfm"
+  command = command + " --defaultIntrinsic " + "\"" + intrinsic + "\""
   command = command + " --defaultCameraModel pinhole" # force pinhole camera
   command = command + " --sensorDatabase ''"
   start_time = time.time()
@@ -78,7 +78,7 @@ for directory in os.listdir(input_eval_dir)[:args.limit]:
 
   print (". compute features")
   command = ALICEVISION_SFM_BIN + "/aliceVision_featureExtraction"
-  command = command + " -i " + matches_dir + "/sfm_data.json"
+  command = command + " -i " + matches_dir + "/cameraInit.sfm"
   command = command + " -o " + matches_dir
   start_time = time.time()
   proc = subprocess.Popen((str(command)), shell=True, stdout=logHandler, stderr=logHandler)
@@ -90,7 +90,7 @@ for directory in os.listdir(input_eval_dir)[:args.limit]:
 
   print (". compute matches")
   command = ALICEVISION_SFM_BIN + "/aliceVision_featureMatching"
-  command = command + " -i " + matches_dir + "/sfm_data.json"
+  command = command + " -i " + matches_dir + "/cameraInit.sfm"
   command = command + " -o " + matches_dir
   start_time = time.time()
   proc = subprocess.Popen((str(command)), shell=True, stdout=logHandler, stderr=logHandler)
@@ -101,9 +101,9 @@ for directory in os.listdir(input_eval_dir)[:args.limit]:
   time_folder['compute_matches'] = time.time() - start_time
 
   print (". compute camera motion")
-  outSfM = os.path.join(output_eval_dir, directory, "sfm.json")
+  outSfM = os.path.join(output_eval_dir, directory, "sfmData.sfm")
   command = ALICEVISION_SFM_BIN + "/aliceVision_incrementalSfM"
-  command = command + " -i " + matches_dir + "/sfm_data.json"
+  command = command + " -i " + matches_dir + "/cameraInit.sfm"
   command = command + " -f " + matches_dir
   command = command + " -m " + matches_dir
   command = command + " -o " + outSfM
