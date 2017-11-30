@@ -61,7 +61,7 @@ for directory in os.listdir(input_eval_dir)[:args.limit]:
               intrinsic += x + ';'
   intrinsic = intrinsic = intrinsic[:-1]
 
-  print (". intrinsic setup")
+  print (". cameraInit")
   command = ALICEVISION_SFM_BIN + "/aliceVision_cameraInit"
   command = command + " --imageFolder " + input_eval_dir + "/" + directory + "/images/"
   command = command + " -o " + matches_dir + "/" + "cameraInit.sfm"
@@ -76,10 +76,11 @@ for directory in os.listdir(input_eval_dir)[:args.limit]:
     sys.exit(proc.returncode)
   time_folder['image_listing'] = time.time() - start_time
 
-  print (". compute features")
+  print (". featureExtraction")
   command = ALICEVISION_SFM_BIN + "/aliceVision_featureExtraction"
   command = command + " -i " + matches_dir + "/cameraInit.sfm"
   command = command + " -o " + matches_dir
+  command = command + " --jobs 1"
   start_time = time.time()
   proc = subprocess.Popen((str(command)), shell=True, stdout=logHandler, stderr=logHandler)
   if proc.wait() != 0:
@@ -88,7 +89,7 @@ for directory in os.listdir(input_eval_dir)[:args.limit]:
     sys.exit(proc.returncode)
   time_folder['compute_features'] = time.time() - start_time
 
-  print (". compute matches")
+  print (". featureMatching")
   command = ALICEVISION_SFM_BIN + "/aliceVision_featureMatching"
   command = command + " -i " + matches_dir + "/cameraInit.sfm"
   command = command + " -o " + matches_dir
@@ -100,7 +101,7 @@ for directory in os.listdir(input_eval_dir)[:args.limit]:
     sys.exit(proc.returncode)
   time_folder['compute_matches'] = time.time() - start_time
 
-  print (". compute camera motion")
+  print (". incrementalSfM")
   outSfM = os.path.join(output_eval_dir, directory, "sfmData.sfm")
   command = ALICEVISION_SFM_BIN + "/aliceVision_incrementalSfM"
   command = command + " -i " + matches_dir + "/cameraInit.sfm"
@@ -116,7 +117,7 @@ for directory in os.listdir(input_eval_dir)[:args.limit]:
     sys.exit(proc.returncode)
   time_folder['compute_camera'] = time.time() - start_time
 
-  print (". perform quality evaluation")
+  print (". qualityEvaluation")
   # gt_camera_file = os.path.join(input_eval_dir, directory, "gt.abc")
   gt_camera_file = os.path.join(input_eval_dir, directory)
   outStatistics_dir = os.path.join(output_eval_dir, directory, "stats")
