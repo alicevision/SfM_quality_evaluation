@@ -92,6 +92,7 @@ for directory in os.listdir(input_eval_dir)[:args.limit]:
   print (". featureMatching")
   command = ALICEVISION_SFM_BIN + "/aliceVision_featureMatching"
   command = command + " -i " + matches_dir + "/cameraInit.sfm"
+  command = command + " -f " + matches_dir
   command = command + " -o " + matches_dir
   start_time = time.time()
   proc = subprocess.Popen((str(command)), shell=True, stdout=logHandler, stderr=logHandler)
