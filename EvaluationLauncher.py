@@ -109,7 +109,7 @@ for directory in os.listdir(input_eval_dir)[:args.limit]:
   command = command + " -f " + matches_dir
   command = command + " -m " + matches_dir
   command = command + " -o " + outSfM
-  command = command + " --refineIntrinsics 0"  # Do not refine intrinsics
+  command = command + " --lockAllIntrinsics 1"  # Do not refine intrinsics
   start_time = time.time()
   proc = subprocess.Popen((str(command)), shell=True, stdout=logHandler, stderr=logHandler)
   if proc.wait() != 0:
