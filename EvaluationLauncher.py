@@ -69,6 +69,7 @@ for directory in os.listdir(input_eval_dir)[:args.limit]:
   command = command + " --defaultCameraModel pinhole" # force pinhole camera
   command = command + " --sensorDatabase ''"
   start_time = time.time()
+  print(str(command))
   proc = subprocess.Popen((str(command)), shell=True, stdout=logHandler, stderr=logHandler)
   if proc.wait() != 0:
     print ("Error! The following command exited with non-zero exit status (" + str(proc.returncode) + "):")
@@ -82,6 +83,7 @@ for directory in os.listdir(input_eval_dir)[:args.limit]:
   command = command + " -o " + matches_dir
   command = command + " --maxThreads 1 --forceCpuExtraction 1"
   start_time = time.time()
+  print(str(command))
   proc = subprocess.Popen((str(command)), shell=True, stdout=logHandler, stderr=logHandler)
   if proc.wait() != 0:
     print ("Error! The following command exited with non-zero exit status (" + str(proc.returncode) + "):")
@@ -95,6 +97,7 @@ for directory in os.listdir(input_eval_dir)[:args.limit]:
   command = command + " -f " + matches_dir
   command = command + " -o " + matches_dir
   start_time = time.time()
+  print(str(command))
   proc = subprocess.Popen((str(command)), shell=True, stdout=logHandler, stderr=logHandler)
   if proc.wait() != 0:
     print ("Error! The following command exited with non-zero exit status (" + str(proc.returncode) + "):")
@@ -111,6 +114,7 @@ for directory in os.listdir(input_eval_dir)[:args.limit]:
   command = command + " -o " + outSfM
   command = command + " --lockAllIntrinsics 1"  # Do not refine intrinsics
   start_time = time.time()
+  print(str(command))
   proc = subprocess.Popen((str(command)), shell=True, stdout=logHandler, stderr=logHandler)
   if proc.wait() != 0:
     print ("Error! The following command exited with non-zero exit status (" + str(proc.returncode) + "):")
@@ -127,6 +131,7 @@ for directory in os.listdir(input_eval_dir)[:args.limit]:
   command = command + " -i " + outSfM
   command = command + " -o " + outStatistics_dir
   start_time = time.time()
+  print(str(command))
   proc = subprocess.Popen((str(command)), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
   if proc.wait() != 0:
     print ("Error! The following command exited with non-zero exit status (" + str(proc.returncode) + "):")
@@ -135,6 +140,7 @@ for directory in os.listdir(input_eval_dir)[:args.limit]:
 
   time_folder['quality_evaluation'] = time.time() - start_time
 
+  print(outStatistics_dir + "/evaluation.log")
   result = {}
   evalog = open(outStatistics_dir + "/evaluation.log", "w")
   line = proc.stdout.readline()
@@ -170,5 +176,7 @@ for directory in os.listdir(input_eval_dir)[:args.limit]:
 
 with open(args.result, 'w') as savejson:
     json.dump(result_folder, savejson, sort_keys=True, indent=4, separators=(',',':'))
+
+print(json.dumps(result_folder, sort_keys=True, indent=4, separators=(',',':')))
 
 sys.exit(0)
