@@ -140,25 +140,23 @@ for directory in os.listdir(input_eval_dir)[:args.limit]:
   line = proc.stdout.readline()
   evalog.write(line)
   while line != '':
-    if 'Baseline error statistics :' in line:
+    if 'Baseline error statistics' in line:
       basestats = {}
       line = proc.stdout.readline()
       evalog.write(line)
-      line = proc.stdout.readline()
-      evalog.write(line)
       for loop in range(0,4):
-        basestats[line.rstrip().split(':')[0].split(' ')[1]] = float(line.rstrip().split(':')[1])
+        v = line.strip().split(':')
+        basestats[v[0]] = float(v[1])
         line = proc.stdout.readline()
         evalog.write(line)
       result['Baseline error statistics'] = basestats
-    if 'Angular error statistics :' in line:
+    if 'Angular error statistics' in line:
       basestats = {}
       line = proc.stdout.readline()
       evalog.write(line)
-      line = proc.stdout.readline()
-      evalog.write(line)
       for loop in range(0,4):
-        basestats[line.rstrip().split(':')[0].split(' ')[1]] = float(line.rstrip().split(':')[1])
+        v = line.strip().split(':')
+        basestats[v[0]] = float(v[1])
         line = proc.stdout.readline()
         evalog.write(line)
       result['Angular error statistics'] = basestats
