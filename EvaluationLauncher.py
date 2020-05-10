@@ -80,7 +80,7 @@ for directory in os.listdir(input_eval_dir)[:args.limit]:
   command = ALICEVISION_SFM_BIN + "/aliceVision_featureExtraction"
   command = command + " -i " + matches_dir + "/cameraInit.sfm"
   command = command + " -o " + matches_dir
-  command = command + " --maxThreads 1"
+  command = command + " --maxThreads 1 --forceCpuExtraction 1"
   start_time = time.time()
   proc = subprocess.Popen((str(command)), shell=True, stdout=logHandler, stderr=logHandler)
   if proc.wait() != 0:
