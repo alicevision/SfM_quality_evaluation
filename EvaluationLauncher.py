@@ -68,6 +68,7 @@ for directory in os.listdir(input_eval_dir)[:args.limit]:
   command = command + " --defaultIntrinsic " + "\"" + intrinsic + "\""
   command = command + " --defaultCameraModel pinhole" # force pinhole camera
   command = command + " --sensorDatabase ''"
+  command = command + " --viewIdMethod filename"
   start_time = time.time()
   print(str(command))
   proc = subprocess.Popen((str(command)), shell=True, stdout=logHandler, stderr=logHandler)
