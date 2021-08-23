@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #! -*- encoding: utf-8 -*-
 
-import commands
+#import commands
 import os
 import subprocess
 import sys
@@ -48,33 +48,33 @@ result_folder = {}
 
 for directory in os.listdir(input_eval_dir)[:args.limit]:
 
-  print directory
+  print (directory)
   matches_dir = os.path.join(output_eval_dir, directory, "matching")
 
   ensure_dir(matches_dir)
   time_folder = {}
 
-  intrinsic = ''
-  with open(input_eval_dir + "/" + directory + "/K.txt") as f:
-      for line in f:
-          for x in line.split():
-              intrinsic += x + ';'
-  intrinsic = intrinsic = intrinsic[:-1]
+  with open(input_eval_dir + "/" + directory + "/intrinsics.json") as f:
+    jsonContent = f.read()
+    intrinsics = json.loads(jsonContent)
 
   print (". cameraInit")
   command = ALICEVISION_SFM_BIN + "/aliceVision_cameraInit"
   command = command + " --imageFolder " + input_eval_dir + "/" + directory + "/images/"
   command = command + " -o " + matches_dir + "/" + "cameraInit.sfm"
-  command = command + " --defaultIntrinsic " + "\"" + intrinsic + "\""
+  command = command + " --defaultFocalLength " + "\"" + str(intrinsics["focalLength"]) + "\""
+  command = command + " --defaultFocalRatio " + "\"" + str(intrinsics["focalRatio"]) + "\""
+  command = command + " --defaultOffsetX " + "\"" + str(intrinsics["offsetX"]) + "\""
+  command = command + " --defaultOffsetY " + "\"" + str(intrinsics["offsetY"]) + "\""
   command = command + " --defaultCameraModel pinhole" # force pinhole camera
-  command = command + " --sensorDatabase ''"
+  command = command + " --sensorDatabase \"\""
   command = command + " --viewIdMethod filename"
   start_time = time.time()
   print(str(command))
   proc = subprocess.Popen((str(command)), shell=True, stdout=logHandler, stderr=logHandler)
   if proc.wait() != 0:
     print ("Error! The following command exited with non-zero exit status (" + str(proc.returncode) + "):")
-    print command
+    print (command)
     sys.exit(proc.returncode)
   time_folder['image_listing'] = time.time() - start_time
 
@@ -88,7 +88,7 @@ for directory in os.listdir(input_eval_dir)[:args.limit]:
   proc = subprocess.Popen((str(command)), shell=True, stdout=logHandler, stderr=logHandler)
   if proc.wait() != 0:
     print ("Error! The following command exited with non-zero exit status (" + str(proc.returncode) + "):")
-    print command
+    print (command)
     sys.exit(proc.returncode)
   time_folder['compute_features'] = time.time() - start_time
 
@@ -102,7 +102,7 @@ for directory in os.listdir(input_eval_dir)[:args.limit]:
   proc = subprocess.Popen((str(command)), shell=True, stdout=logHandler, stderr=logHandler)
   if proc.wait() != 0:
     print ("Error! The following command exited with non-zero exit status (" + str(proc.returncode) + "):")
-    print command
+    print (command)
     sys.exit(proc.returncode)
   time_folder['compute_matches'] = time.time() - start_time
 
@@ -119,7 +119,7 @@ for directory in os.listdir(input_eval_dir)[:args.limit]:
   proc = subprocess.Popen((str(command)), shell=True, stdout=logHandler, stderr=logHandler)
   if proc.wait() != 0:
     print ("Error! The following command exited with non-zero exit status (" + str(proc.returncode) + "):")
-    print command
+    print (command)
     sys.exit(proc.returncode)
   time_folder['compute_camera'] = time.time() - start_time
 
@@ -136,7 +136,7 @@ for directory in os.listdir(input_eval_dir)[:args.limit]:
   proc = subprocess.Popen((str(command)), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
   if proc.wait() != 0:
     print ("Error! The following command exited with non-zero exit status (" + str(proc.returncode) + "):")
-    print command
+    print (command)
     sys.exit(proc.returncode)
 
   time_folder['quality_evaluation'] = time.time() - start_time
@@ -144,30 +144,30 @@ for directory in os.listdir(input_eval_dir)[:args.limit]:
   print(outStatistics_dir + "/evaluation.log")
   result = {}
   evalog = open(outStatistics_dir + "/evaluation.log", "w")
-  line = proc.stdout.readline()
+  line = proc.stdout.readline().decode()
   evalog.write(line)
   while line != '':
     if 'Baseline error statistics' in line:
       basestats = {}
-      line = proc.stdout.readline()
+      line = proc.stdout.readline().decode()
       evalog.write(line)
       for loop in range(0,4):
         v = line.strip().split(':')
         basestats[v[0]] = float(v[1])
-        line = proc.stdout.readline()
+        line = proc.stdout.readline().decode()
         evalog.write(line)
       result['Baseline error statistics'] = basestats
     if 'Angular error statistics' in line:
       basestats = {}
-      line = proc.stdout.readline()
+      line = proc.stdout.readline().decode()
       evalog.write(line)
       for loop in range(0,4):
         v = line.strip().split(':')
         basestats[v[0]] = float(v[1])
-        line = proc.stdout.readline()
+        line = proc.stdout.readline().decode()
         evalog.write(line)
       result['Angular error statistics'] = basestats
-    line = proc.stdout.readline()
+    line = proc.stdout.readline().decode()
     evalog.write(line)
 
   evalog.close()
