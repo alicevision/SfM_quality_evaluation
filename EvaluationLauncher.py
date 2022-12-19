@@ -127,7 +127,7 @@ for directory in os.listdir(input_eval_dir)[:args.limit]:
   # gt_camera_file = os.path.join(input_eval_dir, directory, "gt.abc")
   gt_camera_file = os.path.join(input_eval_dir, directory)
   outStatistics_dir = os.path.join(output_eval_dir, directory, "stats")
-  command = ALICEVISION_SFM_BIN + "/aliceVision_utils_qualityEvaluation"
+  command = ALICEVISION_SFM_BIN + "/aliceVision_qualityEvaluation"
   command = command + " --groundTruthPath " + gt_camera_file
   command = command + " -i " + outSfM
   command = command + " -o " + outStatistics_dir
